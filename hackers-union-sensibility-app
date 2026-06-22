@@ -1,0 +1,102 @@
+# -*- coding: utf-8 -*-
+import kivy
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+from kivy.uix.spinner import Spinner
+from kivy.core.window import Window
+import webbrowser
+
+# Style futuriste sombre Hacker
+Window.clearcolor = (0.04, 0.06, 0.1, 1)
+
+class HackersUnionApp(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.padding = 20
+        self.spacing = 15
+
+        # Titre Officiel
+        self.add_widget(Label(text="HACKERS UNION SENSITIVITY APP", font_size=20, color=(0, 1, 0.5, 1), bold=True))
+        
+        # Formulaire specs
+        self.brand_input = TextInput(hint_text="Marque du telephone (ex: Infinix, Samsung)", multiline=False, background_color=(0.1, 0.15, 0.25, 1), foreground_color=(1,1,1,1))
+        self.ram_input = TextInput(hint_text="Memoire RAM (en Go numerique)", multiline=False, background_color=(0.1, 0.15, 0.25, 1), foreground_color=(1,1,1,1))
+        self.add_widget(self.brand_input)
+        self.add_widget(self.ram_input)
+
+        # Menu deroulant pour la puissance reelle du processeur
+        self.add_widget(Label(text="Puissance / Gamme du Processeur :", font_size=14, color=(0.7, 0.8, 0.9, 1), halign='left'))
+        self.power_spinner = Spinner(
+            text="Milieu de gamme (Standard)",
+            values=("Entree de gamme (Fluide leger)", "Milieu de gamme (Standard)", "Haut de gamme (Gaming / Puissant)"),
+            background_color=(0.1, 0.15, 0.25, 1),
+            color=(1, 1, 1, 1)
+        )
+        self.add_widget(self.power_spinner)
+
+        # Bouton Generer
+        btn_calc = Button(text="GENERER LES REGLAGES PRO", background_color=(0, 0.8, 0.4, 1), font_size=18, bold=True)
+        btn_calc.bind(on_press=self.calculate)
+        self.add_widget(btn_calc)
+
+        # Zone d'affichage des resultats
+        self.result_label = Label(text="Entrez les specs de votre appareil ci-dessus.", font_size=15, color=(0.7, 0.8, 0.9, 1))
+        self.add_widget(self.result_label)
+
+        # Bouton de redirection vers ton site de tournoi GitHub Pages
+        btn_web = Button(text="🔗 VOIR LE TOURNOI EN DIRECT", background_color=(0.2, 0.5, 0.9, 1), size_hint_y=0.25, bold=True)
+        btn_web.bind(on_press=self.open_link)
+        self.add_widget(btn_web)
+
+    def calculate(self, instance):
+        try:
+            ram = int(self.ram_input.text.strip())
+            power = self.power_spinner.text
+            
+            # Base de calcul selon la RAM
+            base_dpi = 411
+            base_sensi = 90
+            
+            if ram <= 3:
+                base_dpi += 90
+                base_sensi += 8
+            elif 4 <= ram <= 6:
+                base_dpi += 50
+                base_sensi += 5
+            else:
+                base_dpi += 30
+                base_sensi += 2
+                
+            # Ajustement chirurgical en fonction de la puissance reelle du processeur
+            if "Entree de gamme" in power:
+                # Telephone plus faible -> On booste la sensibilite pour compenser les lags
+                base_dpi += 30
+                base_sensi = min(base_sensi + 3, 100)
+                statut_perf = "Optimisation Anti-Lag activee"
+            elif "Haut de gamme" in power:
+                # Telephone tres puissant -> On baisse legerement pour un controle parfait sans tremblement
+                base_dpi -= 15
+                base_sensi = max(base_sensi - 2, 85)
+                statut_perf = "Stabilisation Haute Performance activee"
+            else:
+                statut_perf = "Configuration Equilibree"
+
+            self.result_label.text = f"PROFIL DETECTE :\nDPI OPTIMAL : {base_dpi}\nSENSIBILITE : {base_sensi}\nPROCESSEUR : {statut_perf}\n\n\ud83d\udd25 Activez la vitesse de pointeur !"
+        except ValueError:
+            self.result_label.text = "[!] Entrez un chiffre valide pour la RAM."
+
+    def open_link(self, instance):
+        webbrowser.open("https://github.io")
+
+class MainApp(App):
+    def build(self):
+        self.title = "HACKERS UNION SENSITIVITY APP"
+        return HackersUnionApp()
+
+if __name__ == '__main__':
+    MainApp().run()
+
